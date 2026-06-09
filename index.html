@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinVibe — Premium Personal Expense Tracker</title>
+  
+  <!-- Meta Tags for SEO -->
+  <meta name="description" content="Manage your personal finances, track daily expenses, and gain smart spending insights with FinVibe. A premium, secure, and intuitive expense tracker app.">
+  <meta name="keywords" content="expense tracker, finance manager, budget planner, money tracker, personal finance">
+  
+  <!-- CSS Stylesheet (Merged) -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Animated Background Orbs -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+     AUTHENTICATION VIEW
+     ═══════════════════════════════════════════════════════════ -->
+  <main id="auth-view" class="auth-view">
+    <div class="auth-container">
+      
+      <!-- Left Branding Panel -->
+      <section class="auth-brand">
+        <div class="brand-logo">💸</div>
+        <h1 class="brand-title">FinVibe</h1>
+        <p class="brand-subtitle">Master your money. Elevate your financial vibes with interactive charts, smart insights, and custom category budgets.</p>
+        
+        <div class="brand-features">
+          <div class="brand-feature">
+            <span class="feature-icon">🔒</span>
+            <span>Secure, Isolated Multi-User Data</span>
+          </div>
+          <div class="brand-feature">
+            <span class="feature-icon">📊</span>
+            <span>Real-time Interactive Analytics</span>
+          </div>
+          <div class="brand-feature">
+            <span class="feature-icon">🎯</span>
+            <span>Smart Budget Limit Warnings</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Form Panel -->
+      <section class="auth-form-panel">
+        
+        <!-- SIGN IN SECTION -->
+        <div id="signin-section">
+          <div class="form-header">
+            <h2>Welcome Back</h2>
+            <p>Access your isolated wallet dashboard</p>
+          </div>
+
+          <div id="signin-error" class="auth-error">
+            <span class="error-icon">⚠️</span>
+            <span class="error-text">Wrong credentials.</span>
+          </div>
+
+          <form id="signin-form" class="auth-form" novalidate>
+            <div class="form-group form-input-icon">
+              <label for="signin-username" class="form-label">Username</label>
+              <span class="input-icon">👤</span>
+              <input type="text" id="signin-username" class="form-input" placeholder="e.g. rishav_dev" required autocomplete="username">
+            </div>
+
+            <div class="form-group form-input-icon">
+              <label for="signin-password" class="form-label">Password</label>
+              <span class="input-icon">🔑</span>
+              <input type="password" id="signin-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" id="signin-submit" class="btn btn-primary btn-block auth-submit">
+              Sign In
+            </button>
+          </form>
+
+          <div class="auth-toggle">
+            Don't have an account? <a id="show-signup">Create one now</a>
+          </div>
+        </div>
+
+        <!-- SIGN UP SECTION (Hidden by default) -->
+        <div id="signup-section" class="hidden">
+          <div class="form-header">
+            <h2>Get Started</h2>
+            <p>Create a secure account to track your finances</p>
+          </div>
+
+          <div id="signup-error" class="auth-error">
+            <span class="error-icon">⚠️</span>
+            <span class="error-text">Validation failed.</span>
+          </div>
+
+          <form id="signup-form" class="auth-form" novalidate>
+            <div class="form-group form-input-icon">
+              <label for="signup-name" class="form-label">Full Name</label>
+              <span class="input-icon">📝</span>
+              <input type="text" id="signup-name" class="form-input" placeholder="e.g. Rishav Raj" required autocomplete="name">
+            </div>
+
+            <div class="form-group form-input-icon">
+              <label for="signup-username" class="form-label">Username</label>
+              <span class="input-icon">👤</span>
+              <input type="text" id="signup-username" class="form-input" placeholder="Letters, numbers & underscores" required autocomplete="username">
+            </div>
+
+            <div class="form-group form-input-icon">
+              <label for="signup-password" class="form-label">Password</label>
+              <span class="input-icon">🔑</span>
+              <input type="password" id="signup-password" class="form-input" placeholder="At least 6 characters" required autocomplete="new-password">
+              <div class="password-strength">
+                <div class="strength-bar"></div>
+                <div class="strength-bar"></div>
+                <div class="strength-bar"></div>
+              </div>
+            </div>
+
+            <div class="form-group form-input-icon">
+              <label for="signup-balance" class="form-label">Starting Balance (₹)</label>
+              <span class="input-icon">₹</span>
+              <input type="number" id="signup-balance" class="form-input" placeholder="e.g. 5000" min="0" required>
+            </div>
+
+            <button type="submit" id="signup-submit" class="btn btn-primary btn-block auth-submit">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-toggle">
+            Already have an account? <a id="show-signin">Sign in instead</a>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+     DASHBOARD VIEW (Hidden until login)
+     ═══════════════════════════════════════════════════════════ -->
+  <div id="dashboard-view" class="dashboard-view hidden">
+    
+    <!-- Top Sticky Bar -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="topbar-left">
+          <div class="topbar-logo">
+            <span class="logo-icon">💸</span>
+            <span class="logo-text">FinVibe</span>
+          </div>
+          <div id="user-greeting" class="topbar-greeting">
+            Hey! 👋
+          </div>
+        </div>
+        <div class="topbar-right">
+          <!-- Light/Dark Toggle Button -->
+          <button id="theme-toggle" class="btn-icon" aria-label="Toggle theme">
+            <span class="toggle-thumb">🌙</span>
+          </button>
+          <!-- Logout Button -->
+          <button id="logout-btn" class="btn btn-ghost btn-sm" aria-label="Log out">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Body -->
+    <main class="dashboard-content">
+      
+      <!-- Stats Overview Cards Row -->
+      <section class="stats-row">
+        <!-- Balance Card -->
+        <article class="glass-card stat-card stat-balance card-hoverable">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Current Balance</div>
+          <div class="stat-value" data-balance>₹0</div>
+        </article>
+
+        <!-- Income Card -->
+        <article class="glass-card stat-card stat-income card-hoverable">
+          <div class="stat-icon">📈</div>
+          <div class="stat-label">Total Income</div>
+          <div class="stat-value" id="total-income">₹0</div>
+        </article>
+
+        <!-- Expense Card -->
+        <article class="glass-card stat-card stat-expense card-hoverable">
+          <div class="stat-icon">📉</div>
+          <div class="stat-label">Total Expenses</div>
+          <div class="stat-value" id="total-expense">₹0</div>
+        </article>
+      </section>
+
+      <!-- Quick Action Buttons -->
+      <section class="quick-actions">
+        <button id="add-income-btn" class="btn btn-success btn-lg">
+          ➕ Add Income
+        </button>
+        <button id="add-expense-btn" class="btn btn-danger btn-lg">
+          ➖ Add Expense
+        </button>
+        <button id="export-csv-btn" class="btn btn-ghost btn-lg">
+          📥 Export CSV
+        </button>
+      </section>
+
+      <!-- Charts Section -->
+      <section class="dashboard-charts-row">
+        <!-- Category Breakdown Pie Chart -->
+        <section class="glass-card chart-card">
+          <h4>🍰 Expense Breakdown</h4>
+          <div class="chart-wrapper">
+            <canvas id="pie-chart"></canvas>
+          </div>
+        </section>
+
+        <!-- Spend Trend Bar Chart -->
+        <section class="glass-card chart-card">
+          <h4>📊 Spending Trend (Last 7 Days)</h4>
+          <div class="chart-wrapper bar-chart">
+            <canvas id="bar-chart"></canvas>
+          </div>
+        </section>
+      </section>
+
+      <!-- Main Layout Grid -->
+      <div class="dashboard-grid">
+        
+        <!-- Left Panel: Transaction History -->
+        <section class="transactions-panel">
+          <div class="panel-header">
+            <h3>Transaction History (<span id="txn-count">0</span>)</h3>
+            <div class="panel-actions">
+              <button id="clear-all-btn" class="btn btn-ghost btn-sm btn-icon-danger" title="Clear all transactions">
+                🧹 Clear History
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-time Filter Controls -->
+          <div class="glass-card-static filters-section" style="padding: var(--space-4);">
+            <!-- Search & Type Filters -->
+            <div class="filters-row">
+              <div class="form-group form-input-icon" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+                <span class="input-icon">🔍</span>
+                <input type="text" id="search-input" class="form-input" placeholder="Search by description..." aria-label="Search description">
+              </div>
+              
+              <!-- Type Filter Pills -->
+              <div class="filter-group">
+                <button class="filter-pill active" data-filter-type="all">All</button>
+                <button class="filter-pill" data-filter-type="income">Incomes</button>
+                <button class="filter-pill" data-filter-type="expense">Expenses</button>
+              </div>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="filters-row">
+              <span class="form-label" style="margin-bottom: 0; font-size: var(--fs-xs);">Category:</span>
+              <div class="filter-group" style="flex: 1;">
+                <button class="filter-pill active" data-filter-category="all">All</button>
+                <button class="filter-pill" data-filter-category="food">🍔 Food</button>
+                <button class="filter-pill" data-filter-category="transport">🚗 Transport</button>
+                <button class="filter-pill" data-filter-category="shopping">🛍 Shopping</button>
+                <button class="filter-pill" data-filter-category="health">💊 Health</button>
+                <button class="filter-pill" data-filter-category="entertainment">🎮 Entertainment</button>
+                <button class="filter-pill" data-filter-category="education">📚 Education</button>
+                <button class="filter-pill" data-filter-category="bills">🧾 Bills</button>
+                <button class="filter-pill" data-filter-category="other">📦 Other</button>
+              </div>
+            </div>
+
+            <!-- Date Range Filter -->
+            <div class="filters-row date-range-filter">
+              <span class="form-label" style="margin-bottom: 0; font-size: var(--fs-xs);">Date:</span>
+              <input type="date" id="date-from" class="form-input" aria-label="Start date">
+              <span class="date-separator">to</span>
+              <input type="date" id="date-to" class="form-input" aria-label="End date">
+              
+              <span id="filter-count" class="text-secondary" style="font-size: var(--fs-xs); margin-left: auto;">0 transactions</span>
+            </div>
+          </div>
+
+          <!-- Transaction List Container -->
+          <div id="transaction-list" class="transaction-list">
+            <!-- Rendered dynamically by transaction.js -->
+          </div>
+        </section>
+
+        <!-- Right Panel: Budgets & Insights -->
+        <aside class="sidebar-panel">
+          
+          <!-- Budget Card -->
+          <section class="glass-card budget-card">
+            <div class="budget-item-header" style="margin-bottom: var(--space-4);">
+              <h4 style="margin-bottom: 0;">🎯 Budget Limits</h4>
+              <button id="manage-budgets-btn" class="btn btn-ghost btn-sm">Set Budgets</button>
+            </div>
+            <div id="budgets-list">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+          </section>
+
+          <!-- Spending Insights Card -->
+          <section class="glass-card insights-card">
+            <h4>💡 Smart Spending Insights</h4>
+            <div id="insights-list">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+          </section>
+
+          <!-- Keyboard Shortcuts Hint -->
+          <footer class="shortcuts-hint">
+            <div class="shortcut-item">
+              <kbd style="font-family: var(--font-mono); background: var(--bg-tertiary); padding: 2px 6px; border-radius: var(--radius-xs);">Ctrl + I</kbd> Add Income
+            </div>
+            <div class="shortcut-item">
+              <kbd style="font-family: var(--font-mono); background: var(--bg-tertiary); padding: 2px 6px; border-radius: var(--radius-xs);">Ctrl + E</kbd> Add Expense
+            </div>
+            <div class="shortcut-item">
+              <kbd style="font-family: var(--font-mono); background: var(--bg-tertiary); padding: 2px 6px; border-radius: var(--radius-xs);">Esc</kbd> Close Modals
+            </div>
+          </footer>
+
+        </aside>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+     MODALS SECTION
+     ═══════════════════════════════════════════════════════════ -->
+
+  <!-- 1. ADD INCOME MODAL -->
+  <div id="income-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>💰 Add Income Money</h3>
+        <button class="btn-icon" data-close-modal="income-modal" aria-label="Close modal">✕</button>
+      </div>
+      <form id="income-form" class="modal-body" novalidate>
+        <div class="form-group form-input-icon">
+          <label for="income-amount" class="form-label">Amount (₹)</label>
+          <span class="input-icon">₹</span>
+          <input type="number" id="income-amount" class="form-input" placeholder="e.g. 20000" min="0.01" step="any" required>
+        </div>
+        
+        <div class="form-group form-input-icon">
+          <label for="income-description" class="form-label">Description / Source</label>
+          <span class="input-icon">✍️</span>
+          <input type="text" id="income-description" class="form-input" placeholder="e.g. Monthly Salary, Pocket Money, Gift" required>
+        </div>
+
+        <div id="income-preview" class="amount-preview">
+          Enter an amount
+        </div>
+
+        <div class="modal-footer" style="padding-bottom: 0; padding-right: 0;">
+          <button type="button" class="btn btn-ghost" data-close-modal="income-modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Add Money</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. ADD EXPENSE MODAL -->
+  <div id="expense-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>💸 Add Expense / Kharcha</h3>
+        <button class="btn-icon" data-close-modal="expense-modal" aria-label="Close modal">✕</button>
+      </div>
+      <form id="expense-form" class="modal-body" novalidate>
+        
+        <!-- Category Selection Grid -->
+        <div class="form-group">
+          <span class="form-label">Select Expense Category</span>
+          <div class="category-grid">
+            <div class="category-item" data-category="food">
+              <span class="cat-emoji">🍔</span>
+              <span class="cat-name">Food</span>
+            </div>
+            <div class="category-item" data-category="transport">
+              <span class="cat-emoji">🚗</span>
+              <span class="cat-name">Transport</span>
+            </div>
+            <div class="category-item" data-category="shopping">
+              <span class="cat-emoji">🛍</span>
+              <span class="cat-name">Shopping</span>
+            </div>
+            <div class="category-item" data-category="health">
+              <span class="cat-emoji">💊</span>
+              <span class="cat-name">Health</span>
+            </div>
+            <div class="category-item" data-category="entertainment">
+              <span class="cat-emoji">🎮</span>
+              <span class="cat-name">Movies/Games</span>
+            </div>
+            <div class="category-item" data-category="education">
+              <span class="cat-emoji">📚</span>
+              <span class="cat-name">Education</span>
+            </div>
+            <div class="category-item" data-category="bills">
+              <span class="cat-emoji">🧾</span>
+              <span class="cat-name">Bills</span>
+            </div>
+            <div class="category-item" data-category="other">
+              <span class="cat-emoji">📦</span>
+              <span class="cat-name">Other</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group form-input-icon">
+          <label for="expense-amount" class="form-label">Amount (₹)</label>
+          <span class="input-icon">₹</span>
+          <input type="number" id="expense-amount" class="form-input" placeholder="e.g. 450" min="0.01" step="any" required>
+        </div>
+        
+        <div class="form-group form-input-icon">
+          <label for="expense-description" class="form-label">Description / Spent On</label>
+          <span class="input-icon">✍️</span>
+          <input type="text" id="expense-description" class="form-input" placeholder="e.g. Dominos Pizza, Uber ride, Electricity Bill" required>
+        </div>
+
+        <div id="expense-preview" class="amount-preview">
+          Select category & enter amount
+        </div>
+
+        <div class="modal-footer" style="padding-bottom: 0; padding-right: 0;">
+          <button type="button" class="btn btn-ghost" data-close-modal="expense-modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Record Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. MANAGE BUDGET MODAL -->
+  <div id="budget-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🎯 Set Category Budget Limit</h3>
+        <button class="btn-icon" data-close-modal="budget-modal" aria-label="Close modal">✕</button>
+      </div>
+      <form id="budget-form" class="modal-body" novalidate>
+        
+        <div class="form-group">
+          <label for="budget-category" class="form-label">Select Category</label>
+          <select id="budget-category" class="form-input" required style="appearance: auto; padding-right: var(--space-8);">
+            <option value="" disabled selected>Choose a category...</option>
+            <option value="food">🍔 Food</option>
+            <option value="transport">🚗 Transport</option>
+            <option value="shopping">🛍 Shopping</option>
+            <option value="health">💊 Health</option>
+            <option value="entertainment">🎮 Entertainment</option>
+            <option value="education">📚 Education</option>
+            <option value="bills">🧾 Bills</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+
+        <div class="form-group form-input-icon">
+          <label for="budget-limit" class="form-label">Monthly Limit (₹)</label>
+          <span class="input-icon">₹</span>
+          <input type="number" id="budget-limit" class="form-input" placeholder="e.g. 5000 (enter 0 to remove budget)" min="0" required>
+          <div class="form-helper">Enter 0 to clear the budget limit for this category.</div>
+        </div>
+
+        <div class="modal-footer" style="padding-bottom: 0; padding-right: 0;">
+          <button type="button" class="btn btn-ghost" data-close-modal="budget-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Budget</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. EDIT TRANSACTION MODAL -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 id="edit-modal-title">✏️ Edit Transaction</h3>
+        <button class="btn-icon" data-close-modal="edit-modal" aria-label="Close modal">✕</button>
+      </div>
+      <form id="edit-form" class="modal-body" novalidate>
+        <!-- Hidden Inputs for Transaction ID and Type -->
+        <input type="hidden" id="edit-id">
+        <input type="hidden" id="edit-type">
+
+        <!-- Category Selection Grid (Only visible for expense editing) -->
+        <div class="form-group" id="edit-category-group">
+          <span class="form-label">Select Category</span>
+          <div class="category-grid">
+            <div class="category-item edit-category-item" data-category="food">
+              <span class="cat-emoji">🍔</span>
+              <span class="cat-name">Food</span>
+            </div>
+            <div class="category-item edit-category-item" data-category="transport">
+              <span class="cat-emoji">🚗</span>
+              <span class="cat-name">Transport</span>
+            </div>
+            <div class="category-item edit-category-item" data-category="shopping">
+              <span class="cat-emoji">🛍</span>
+              <span class="cat-name">Shopping</span>
+            </div>
+            <div class="category-item edit-category-item" data-category="health">
+              <span class="cat-emoji">💊</span>
+              <span class="cat-name">Health</span>
+            </div>
+            <div class="category-item edit-category-item" data-category="entertainment">
+              <span class="cat-emoji">🎮</span>
+              <span class="cat-name">Movies/Games</span>
+            </div>
+            <div class="category-item edit-category-item" data-category="education">
+              <span class="cat-emoji">📚</span>
+              <span class="cat-name">Education</span>
+            </div>
+            <div class="category-item edit-category-item" data-category="bills">
+              <span class="cat-emoji">🧾</span>
+              <span class="cat-name">Bills</span>
+            </div>
+            <div class="category-item edit-category-item" data-category="other">
+              <span class="cat-emoji">📦</span>
+              <span class="cat-name">Other</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group form-input-icon">
+          <label for="edit-amount" class="form-label">Amount (₹)</label>
+          <span class="input-icon">₹</span>
+          <input type="number" id="edit-amount" class="form-input" placeholder="e.g. 450" min="0.01" step="any" required>
+        </div>
+        
+        <div class="form-group form-input-icon">
+          <label for="edit-description" class="form-label">Description</label>
+          <span class="input-icon">✍️</span>
+          <input type="text" id="edit-description" class="form-input" placeholder="e.g. Spent details" required>
+        </div>
+
+        <div id="edit-preview" class="amount-preview">
+          Enter details
+        </div>
+
+        <div class="modal-footer" style="padding-bottom: 0; padding-right: 0;">
+          <button type="button" class="btn btn-ghost" data-close-modal="edit-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="edit-submit-btn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. CONFIRMATION MODAL -->
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header" style="padding-bottom: 0;">
+        <h3 class="sr-only">Confirm Action</h3>
+        <button class="btn-icon" data-close-modal="confirm-modal" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-body">
+          <div class="confirm-icon">⚠️</div>
+          <p class="confirm-text">Are you sure you want to proceed?</p>
+        </div>
+        <div class="modal-footer" style="padding: var(--space-4) 0 0; justify-content: center; gap: var(--space-4);">
+          <button type="button" class="btn btn-ghost" data-close-modal="confirm-modal">Cancel</button>
+          <button type="button" id="confirm-action-btn" class="btn btn-danger">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Main Logic Script Module -->
+  <script src="main.js"></script>
+
+</body>
+</html>
